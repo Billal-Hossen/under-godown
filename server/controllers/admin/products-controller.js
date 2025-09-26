@@ -1,7 +1,8 @@
 const { imageUploadUtil } = require("../../utils/cloudinary");
 const Product = require("../../models/Product");
+const ApiError = require("../../utils/ApiError");
 
-const handleImageUpload = async (req, res) => {
+const handleImageUpload = async (req, res, next) => {
   try {
     const b64 = Buffer.from(req.file.buffer).toString("base64");
     const url = "data:" + req.file.mimetype + ";base64," + b64;
@@ -12,16 +13,12 @@ const handleImageUpload = async (req, res) => {
       result,
     });
   } catch (error) {
-    console.log(error);
-    res.json({
-      success: false,
-      message: "Error occured",
-    });
+    next(error);
   }
 };
 
 //add a new product
-const addProduct = async (req, res) => {
+const addProduct = async (req, res,next) => {
   try {
     const {
       image,
@@ -34,9 +31,12 @@ const addProduct = async (req, res) => {
       totalStock,
       averageReview,
     } = req.body;
-
+    console.log(req.body);
+ if(!image || !title || !description || !category || !brand || !price || !totalStock)
+  throw new ApiError(400, "All fields are required",[{ field: "image/title/description/category/brand/price/totalStock", message: "All fields are required" }]);
     console.log(averageReview, "averageReview");
-
+const  productExists = await Product.findOne({ title });
+if(productExists) throw new ApiError(409, "Product already exists",[{ field: "title", message: "Product already exists" }]);
     const newlyCreatedProduct = new Product({
       image,
       title,
@@ -56,10 +56,7 @@ const addProduct = async (req, res) => {
     });
   } catch (e) {
     console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Error occured",
-    });
+    next(e);
   }
 };
 

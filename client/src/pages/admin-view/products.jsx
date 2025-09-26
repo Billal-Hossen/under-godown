@@ -46,6 +46,7 @@ function AdminProducts() {
 
   function onSubmit(event) {
     event.preventDefault();
+    
 
     currentEditedId !== null
       ? dispatch(
@@ -76,6 +77,12 @@ function AdminProducts() {
             setFormData(initialFormData);
             toast({
               title: "Product add successfully",
+            });
+          }
+          else {
+            toast({
+              title: data?.payload?.message || "Failed to add product",
+              variant: "destructive",
             });
           }
         });

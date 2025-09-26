@@ -1,68 +1,50 @@
+const ApiError = require("../../utils/ApiError");
 const Order = require("../../models/Order");
 
-const getAllOrdersOfAllUsers = async (req, res) => {
+const getAllOrdersOfAllUsers = async (req, res, next) => {
   try {
     const orders = await Order.find({});
 
-    if (!orders.length) {
-      return res.status(404).json({
-        success: false,
-        message: "No orders found!",
-      });
-    }
-
+    if (!orders.length)
+      throw new ApiError(404, "No orders found!", [{ field: "orders", message: "No orders found!" }]);
     res.status(200).json({
       success: true,
       data: orders,
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Some error occured!",
-    });
+    next(e);
   }
 };
 
-const getOrderDetailsForAdmin = async (req, res) => {
+const getOrderDetailsForAdmin = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const order = await Order.findById(id);
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found!",
-      });
-    }
+    if (!order)
+      throw new ApiError(404, "Order not found!", [{ field: "order", message: "Order not found!" }]);
 
     res.status(200).json({
       success: true,
       data: order,
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Some error occured!",
-    });
+    next(e);
   }
 };
 
-const updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { orderStatus } = req.body;
 
     const order = await Order.findById(id);
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found!",
-      });
-    }
+    if (!order) throw new ApiError(404, "Order not found!", [{ field: "order", message: "Order not found!" }]);
+
+    if (!orderStatus || orderStatus.trim() === "")
+      throw new ApiError(400, "Order status is required!", [{ field: "orderStatus", message: "Order status is required!" }]);
 
     await Order.findByIdAndUpdate(id, { orderStatus });
 
@@ -71,11 +53,7 @@ const updateOrderStatus = async (req, res) => {
       message: "Order status is updated successfully!",
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Some error occured!",
-    });
+    next(e);
   }
 };
 
