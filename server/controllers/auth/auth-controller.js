@@ -1,18 +1,17 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
+const ApiError = require("../../utils/ApiError");
 
 //register
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   const { userName, email, password } = req.body;
-
   try {
+      if (!userName || !email || !password) throw new ApiError(400, "All fields are required",[{ field: "userName/email/password", message: "All fields are required" }]);
+
     const checkUser = await User.findOne({ email });
     if (checkUser)
-      return res.json({
-        success: false,
-        message: "User Already exists with the same email! Please try again",
-      });
+      throw new ApiError(409, "User already exists! Please login",[{ field: "email", message: "User already exists! Please login" }]);
 
     const hashPassword = await bcrypt.hash(password, 12);
     const newUser = new User({
@@ -27,36 +26,27 @@ const registerUser = async (req, res) => {
       message: "Registration successful",
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Some error occured",
-    });
+   next(e);
   }
 };
 
 //login
-const loginUser = async (req, res) => {
-  console.log({body:req.body})
-  const { email, password } = req.body;
 
+
+const loginUser = async (req, res, next) => {
   try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new ApiError(400, "Email and password are required",[{ field: "email/password", message: "Email and password are required" }]);
+    }
     const checkUser = await User.findOne({ email });
-    if (!checkUser)
-      return res.json({
-        success: false,
-        message: "User doesn't exists! Please register first",
-      });
-
-    const checkPasswordMatch = await bcrypt.compare(
-      password,
-      checkUser.password
-    );
-    if (!checkPasswordMatch)
-      return res.json({
-        success: false,
-        message: "Incorrect password! Please try again",
-      });
+    if (!checkUser) {
+      throw new ApiError(404, "User doesn't exist! Please register first",[{ field: "email", message: "User doesn't exist! Please register first" }]);
+    }
+    const checkPasswordMatch = await bcrypt.compare(password, checkUser.password);
+    if (!checkPasswordMatch) {
+      throw new ApiError(400, "Incorrect password! Please try again",[{ field: "password", message: "Incorrect password! Please try again" }]);
+    }
 
     const token = jwt.sign(
       {
@@ -80,11 +70,7 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Some error occured",
-    });
+    next(e);
   }
 };
 
@@ -97,25 +83,6 @@ const logoutUser = (req, res) => {
   });
 };
 
-//auth middleware
-const authMiddleware = async (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token)
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorised user!",
-    });
 
-  try {
-    const decoded = jwt.verify(token, "CLIENT_SECRET_KEY");
-    req.user = decoded;
-    next();
-  } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: "Unauthorised user!",
-    });
-  }
-};
 
-module.exports = { registerUser, loginUser, logoutUser, authMiddleware };
+module.exports = { registerUser, loginUser, logoutUser };

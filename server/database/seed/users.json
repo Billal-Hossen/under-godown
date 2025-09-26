@@ -1,4 +1,4 @@
 [
-   {"userName": "Admin", "email": "admin@gmail.com", "password": "123456", "role": "admin"},
-   {"userName": "Dipu", "email": "dipu@gmail.com", "password": "123456", "role": "user"}
+   {"userName": "Admin", "email": "admin@gmail.com", "password": "$2a$12$NhQZqx/5SLl15gpsArDEQ.sRFy6kMVk6o67uhKuqJ7q5G3vFdNnFO", "role": "admin"},
+   {"userName": "Dipu", "email": "dipu@gmail.com", "password": "$2a$12$NhQZqx/5SLl15gpsArDEQ.sRFy6kMVk6o67uhKuqJ7q5G3vFdNnFO", "role": "user"}
 ]

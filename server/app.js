@@ -1,4 +1,5 @@
 require('dotenv').config()
+const cors = require("cors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
@@ -14,12 +15,29 @@ const shopSearchRouter = require("./routes/shop/search-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
 
 const commonFeatureRouter = require("./routes/common/feature-routes");
+const globalErrorHandler = require('./middlewares/globalErrorHandle');
 
 
 const app = express();
+        // cors configuration
+        app.use(
+            cors({
+                origin: "http://localhost:5173",
+                methods: ["GET", "POST", "DELETE", "PUT"],
+                allowedHeaders: [
+                    "Content-Type",
+                    "Authorization",
+                    "Cache-Control",
+                    "Expires",
+                    "Pragma",
+                ],
+                credentials: true,
+            })
+        );
 app.use(express.json({ limit: '16kb' }))
 app.use(express.urlencoded({ extended: true, limit: '16kb' }))
 app.use(cookieParser());
+
 
 // Define routes
 app.use("/api/auth", authRouter);
@@ -34,6 +52,8 @@ app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 
 app.use("/api/common/feature", commonFeatureRouter);
+// Global Error Handling Middleware
+app.use(globalErrorHandler)
 
 
 
