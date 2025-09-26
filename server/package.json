@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "server.js",
-    "dev": "nodemon server.js",
-    "seed": "node ./seed/seed.js"
+    "start:dev": "nodemon server.js",
+    "seed": "node ./database/seed/seed.js"
   },
   "author": "Masum Billal Dipu",
   "license": "ISC",

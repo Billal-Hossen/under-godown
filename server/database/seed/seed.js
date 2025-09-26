@@ -1,16 +1,13 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
-const User = require('../models/User');
+const User = require('../../models/User');
 const usersData = require('./users.json');
+const connectDB = require('../dbConnection');
 require('colors');
 
 async function seedDatabase() {
     try {
-        await mongoose.connect(`${process.env.MONGO_URI}/${process.env.DB_NAME}`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        console.log("MongoDB connected for seeding".yellow.underline);
+       connectDB()
         // Seed users
         await createUsers();
         mongoose.connection.close();
