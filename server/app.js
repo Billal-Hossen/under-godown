@@ -2,6 +2,7 @@ require('dotenv').config()
 const cors = require("cors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const morgan = require("morgan");
 
 const authRouter = require("./routes/auth/auth-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
@@ -37,6 +38,7 @@ const app = express();
 app.use(express.json({ limit: '16kb' }))
 app.use(express.urlencoded({ extended: true, limit: '16kb' }))
 app.use(cookieParser());
+app.use(morgan('dev'))
 
 
 // Define routes
