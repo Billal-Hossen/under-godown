@@ -19,4 +19,11 @@ const globalErrorHandler = (err, req, res, next) => {
   });
 };
 
-module.exports = globalErrorHandler;
+function notFound(req, res, next) {
+  res.status(404).json({ message: 'Not found' });
+}
+
+
+
+module.exports = { notFound, globalErrorHandler };
+

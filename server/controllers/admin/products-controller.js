@@ -31,7 +31,6 @@ const addProduct = async (req, res,next) => {
       totalStock,
       averageReview,
     } = req.body;
-    console.log(req.body);
  if(!image || !title || !description || !category || !brand || !price || !totalStock)
   throw new ApiError(400, "All fields are required",[{ field: "image/title/description/category/brand/price/totalStock", message: "All fields are required" }]);
     console.log(averageReview, "averageReview");
