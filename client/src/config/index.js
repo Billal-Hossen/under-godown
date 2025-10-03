@@ -39,7 +39,71 @@ export const loginFormControls = [
   },
 ];
 
-export const addProductFormElements = [
+// export const addProductFormElements = [
+//   {
+//     label: "Title",
+//     name: "title",
+//     componentType: "input",
+//     type: "text",
+//     placeholder: "Enter product title",
+//   },
+//   {
+//     label: "Description",
+//     name: "description",
+//     componentType: "textarea",
+//     placeholder: "Enter product description",
+//   },
+//   {
+//     label: "Category",
+//     name: "category",
+//     componentType: "select",
+//     options: [
+//       { id: "men", label: "Men" },
+//       { id: "women", label: "Women" },
+//       { id: "kids", label: "Kids" },
+//       { id: "accessories", label: "Accessories" },
+//       { id: "footwear", label: "Footwear" },
+//     ],
+//   },
+//   {
+//     label: "Brand",
+//     name: "brand",
+//     componentType: "select",
+//     options: [
+//       { id: "nike", label: "Nike" },
+//       { id: "adidas", label: "Adidas" },
+//       { id: "puma", label: "Puma" },
+//       { id: "levi", label: "Levi's" },
+//       { id: "zara", label: "Zara" },
+//       { id: "h&m", label: "H&M" },
+//     ],
+//   },
+//   {
+//     label: "Price",
+//     name: "price",
+//     componentType: "input",
+//     type: "number",
+//     placeholder: "Enter product price",
+//   },
+//   {
+//     label: "Sale Price",
+//     name: "salePrice",
+//     componentType: "input",
+//     type: "number",
+//     placeholder: "Enter sale price (optional)",
+//   },
+//   {
+//     label: "Total Stock",
+//     name: "totalStock",
+//     componentType: "input",
+//     type: "number",
+//     placeholder: "Enter total stock",
+//   },
+// ];
+
+// config/index.js
+// config/index.js
+export const addProductFormElements = (categories = []) => [
   {
     label: "Title",
     name: "title",
@@ -57,13 +121,10 @@ export const addProductFormElements = [
     label: "Category",
     name: "category",
     componentType: "select",
-    options: [
-      { id: "men", label: "Men" },
-      { id: "women", label: "Women" },
-      { id: "kids", label: "Kids" },
-      { id: "accessories", label: "Accessories" },
-      { id: "footwear", label: "Footwear" },
-    ],
+    options: categories.map((cat) => ({
+      id: cat._id,        // from MongoDB
+      label: cat.label,   // make sure backend sends label/name
+    })),
   },
   {
     label: "Brand",
@@ -101,48 +162,81 @@ export const addProductFormElements = [
   },
 ];
 
-export const shoppingViewHeaderMenuItems = [
-  {
-    id: "home",
-    label: "Home",
-    path: "/shop/home",
-  },
-  {
-    id: "products",
-    label: "Products",
-    path: "/shop/listing",
-  },
-  {
-    id: "men",
-    label: "Men",
-    path: "/shop/listing",
-  },
-  {
-    id: "women",
-    label: "Women",
-    path: "/shop/listing",
-  },
-  {
-    id: "kids",
-    label: "Kids",
-    path: "/shop/listing",
-  },
-  {
-    id: "footwear",
-    label: "Footwear",
-    path: "/shop/listing",
-  },
-  {
-    id: "accessories",
-    label: "Accessories",
-    path: "/shop/listing",
-  },
-  {
-    id: "search",
-    label: "Search",
-    path: "/shop/search",
-  },
-];
+
+// export const shoppingViewHeaderMenuItems = [
+//   {
+//     id: "home",
+//     label: "Home",
+//     path: "/shop/home",
+//   },
+//   {
+//     id: "products",
+//     label: "Products",
+//     path: "/shop/listing",
+//   },
+//   {
+//     id: "men",
+//     label: "Men",
+//     path: "/shop/listing",
+//   },
+//   {
+//     id: "women",
+//     label: "Women",
+//     path: "/shop/listing",
+//   },
+//   {
+//     id: "kids",
+//     label: "Kids",
+//     path: "/shop/listing",
+//   },
+//   {
+//     id: "footwear",
+//     label: "Footwear",
+//     path: "/shop/listing",
+//   },
+//   {
+//     id: "accessories",
+//     label: "Accessories",
+//     path: "/shop/listing",
+//   },
+//   {
+//     id: "search",
+//     label: "Search",
+//     path: "/shop/search",
+//   },
+// ];
+
+// shoppingMenu.js
+export const shoppingViewHeaderMenuItems = (categoriesFromStore = []) => {
+  const staticStart = [
+    {
+      id: "home",
+      label: "Home",
+      path: "/shop/home",
+    },
+    {
+      id: "products",
+      label: "Products",
+      path: "/shop/listing",
+    },
+  ];
+
+  const dynamicCategories = categoriesFromStore.map((cat) => ({
+    id: cat._id,
+    label: cat.label,
+    path: `/shop/listing?category`, // এখানে id দিয়ে filter হবে
+  }));
+
+  const staticEnd = [
+    {
+      id: "search",
+      label: "Search",
+      path: "/shop/search",
+    },
+  ];
+
+  return [...staticStart, ...dynamicCategories, ...staticEnd];
+};
 
 export const categoryOptionsMap = {
   men: "Men",
@@ -161,22 +255,21 @@ export const brandOptionsMap = {
   "h&m": "H&M",
 };
 
-export const filterOptions = {
-  category: [
-    { id: "men", label: "Men" },
-    { id: "women", label: "Women" },
-    { id: "kids", label: "Kids" },
-    { id: "accessories", label: "Accessories" },
-    { id: "footwear", label: "Footwear" },
-  ],
-  brand: [
-    { id: "nike", label: "Nike" },
-    { id: "adidas", label: "Adidas" },
-    { id: "puma", label: "Puma" },
-    { id: "levi", label: "Levi's" },
-    { id: "zara", label: "Zara" },
-    { id: "h&m", label: "H&M" },
-  ],
+export const filterOptions = (categoriesFromStore = []) => {
+  return {
+    category: categoriesFromStore.map((c) => ({
+      id: c._id,        
+      label: c.label,    
+    })),
+    brand: [
+      { id: "nike", label: "Nike" },
+      { id: "adidas", label: "Adidas" },
+      { id: "puma", label: "Puma" },
+      { id: "levi", label: "Levi's" },
+      { id: "zara", label: "Zara" },
+      { id: "h&m", label: "H&M" },
+    ],
+  };
 };
 
 export const sortOptions = [

@@ -1,0 +1,7 @@
+[
+  { "label": "Men", "icon": "ShirtIcon" },
+  { "label": "Women", "icon": "CloudLightning" },
+  { "label": "Kids", "icon": "BabyIcon" },
+  { "label": "Accessories", "icon": "WatchIcon" },
+  { "label": "Footwear", "icon": "UmbrellaIcon" }
+]

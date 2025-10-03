@@ -68,7 +68,7 @@ console.log(checkUser.role.roleName)
     if (!ok) {
       throw new ApiError(400, "Incorrect password! Please try again", [{ field: "password", message: "Incorrect password! Please try again" }]);
     }
-    const payload = { id: checkUser._id, role: checkUser.role.roleName, email: checkUser.email, userName: checkUser.userName };
+    const payload = { id: checkUser._id,userName: checkUser.userName, role: checkUser.role.roleName, email: checkUser.email, userName: checkUser.userName };
     console.log("payload", payload);
     const accessToken = generateToken(payload, process.env.ACCESS_TOKEN_SCERET, process.env.JWT_ACCESS_EXPIRES);
     const refresh = generateToken({ uid: checkUser.id, type: checkUser.userType }, process.env.REFRESH_TOKEN_SCERET, process.env.JWT_REFRESH_EXPIRES);

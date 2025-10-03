@@ -14,6 +14,7 @@ const shopAddressRouter = require("./routes/shop/address-routes");
 const shopOrderRouter = require("./routes/shop/order-routes");
 const shopSearchRouter = require("./routes/shop/search-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
+const categoryRoter = require("./routes/shop/category-router");
 
 const commonFeatureRouter = require("./routes/common/feature-routes");
 const { globalErrorHandler, notFound } = require('./middlewares/globalErrorHandle');
@@ -52,8 +53,11 @@ app.use("/api/shop/address", shopAddressRouter);
 // app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
+app.use("/api/shop/categories", categoryRoter);
+
 
 app.use("/api/common/feature", commonFeatureRouter);
+
 
 // Handle 404 - Not Found
 app.use(notFound);

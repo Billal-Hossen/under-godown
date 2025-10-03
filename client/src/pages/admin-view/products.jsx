@@ -16,6 +16,7 @@ import {
   editProduct,
   fetchAllProducts,
 } from "@/store/admin/products-slice";
+import { fetchCategoryItems } from "@/store/category-slice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -41,52 +42,69 @@ function AdminProducts() {
   const [currentEditedId, setCurrentEditedId] = useState(null);
 
   const { productList } = useSelector((state) => state.adminProducts);
-  const dispatch = useDispatch();
+  const { categoriesWithIcon, isLoading } = useSelector((state) => state.category);
+
   const { toast } = useToast();
+  const dispatch = useDispatch();
 
-  function onSubmit(event) {
-    event.preventDefault();
-    
+  // ✅ Fetch categories from DB when component mounts
+  useEffect(() => {
+    dispatch(fetchCategoryItems());
+  }, [dispatch]);
 
-    currentEditedId !== null
-      ? dispatch(
-          editProduct({
-            id: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          console.log(data, "edit");
+ function onSubmit(event) {
+  event.preventDefault();
 
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setFormData(initialFormData);
-            setOpenCreateProductsDialog(false);
-            setCurrentEditedId(null);
-          }
-        })
-      : dispatch(
-          addNewProduct({
-            ...formData,
-            image: uploadedImageUrl,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setOpenCreateProductsDialog(false);
-            setImageFile(null);
-            setFormData(initialFormData);
-            toast({
-              title: "Product add successfully",
-            });
-          }
-          else {
-            toast({
-              title: data?.payload?.message || "Failed to add product",
-              variant: "destructive",
-            });
-          }
+  if (currentEditedId !== null) {
+    // ✅ Edit product
+    dispatch(
+      editProduct({
+        id: currentEditedId,
+        formData: {
+          ...formData,
+          image: uploadedImageUrl || formData.image, // যদি নতুন url থাকে সেটা নেবে, না থাকলে পুরানো image রাখবে
+        },
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchAllProducts());
+        setFormData(initialFormData);
+        setOpenCreateProductsDialog(false);
+        setCurrentEditedId(null);
+        setImageFile(null);
+        setUploadedImageUrl("");
+        toast({
+          title: "Product updated successfully",
         });
+      }
+    });
+  } else {
+    // ✅ Add new product
+    dispatch(
+      addNewProduct({
+        ...formData,
+        image: uploadedImageUrl,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchAllProducts());
+        setOpenCreateProductsDialog(false);
+        setImageFile(null);
+        setFormData(initialFormData);
+        setUploadedImageUrl("");
+        toast({
+          title: "Product added successfully",
+        });
+      } else {
+        toast({
+          title: data?.payload?.message || "Failed to add product",
+          variant: "destructive",
+        });
+      }
+    });
   }
+}
+
 
   function handleDelete(getCurrentProductId) {
     dispatch(deleteProduct(getCurrentProductId)).then((data) => {
@@ -107,8 +125,6 @@ function AdminProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  console.log(formData, "productList");
-
   return (
     <Fragment>
       <div className="mb-5 w-full flex justify-end">
@@ -116,10 +132,13 @@ function AdminProducts() {
           Add New Product
         </Button>
       </div>
+
+      {/* ✅ Product grid */}
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
         {productList && productList.length > 0
           ? productList.map((productItem) => (
               <AdminProductTile
+                key={productItem._id}
                 setFormData={setFormData}
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog}
                 setCurrentEditedId={setCurrentEditedId}
@@ -129,6 +148,8 @@ function AdminProducts() {
             ))
           : null}
       </div>
+
+      {/* ✅ Add/Edit Product Drawer */}
       <Sheet
         open={openCreateProductsDialog}
         onOpenChange={() => {
@@ -143,6 +164,8 @@ function AdminProducts() {
               {currentEditedId !== null ? "Edit Product" : "Add New Product"}
             </SheetTitle>
           </SheetHeader>
+
+          {/* ✅ Image Upload */}
           <ProductImageUpload
             imageFile={imageFile}
             setImageFile={setImageFile}
@@ -152,13 +175,17 @@ function AdminProducts() {
             imageLoadingState={imageLoadingState}
             isEditMode={currentEditedId !== null}
           />
+
+          {/* ✅ CommonForm with dynamic categories */}
           <div className="py-6">
             <CommonForm
               onSubmit={onSubmit}
               formData={formData}
               setFormData={setFormData}
               buttonText={currentEditedId !== null ? "Edit" : "Add"}
-              formControls={addProductFormElements}
+              formControls={
+                addProductFormElements(categoriesWithIcon) // ✅ pass dynamic categories here
+              }
               isBtnDisabled={!isFormValid()}
             />
           </div>
