@@ -2,11 +2,13 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 // const User = require('../../models/User');
 const usersData = require('./users.json');
+const categoryData = require('./category.json');
 const connectDB = require('../dbConnection');
 const { UserModel } = require('../../data/models/user');
 const { RoleModel } = require('../../data/models/role');
 const { PermissionModel } = require('../../data/models/permission');
 const { MenuModel } = require('../../data/models/menu');
+const Category = require('../../data/models/Category');
 require('colors');
 
 async function seedDatabase() {
@@ -20,6 +22,7 @@ async function seedDatabase() {
             PermissionModel.deleteMany(),
             RoleModel.deleteMany(),
             UserModel.deleteMany(),
+            Category.deleteMany(),
         ]);
         console.log('🧹 Cleared existing data');
 
@@ -164,7 +167,7 @@ async function seedDatabase() {
             { "userName": "Dipu", "email": "dipu@gmail.com", "password": "$2a$12$NhQZqx/5SLl15gpsArDEQ.sRFy6kMVk6o67uhKuqJ7q5G3vFdNnFO", "userType": "USER", "isActive": true, "userStatus": "ACTIVE", "role": new mongoose.Types.ObjectId(userRole._id)    }
         ]
         await UserModel.insertMany(users);
-
+await Category.insertMany(categoryData)
 
 
         console.log(`🛡️ Created Admin Role with ${permissions.length} permissions and ${allMenus.length} menus`);

@@ -1,5 +1,6 @@
 const { imageUploadUtil } = require("../../utils/cloudinary");
-const Product = require("../../models/Product");
+// const Product = require("../../models/Product");
+const Product = require("../../data/models/Product");
 const ApiError = require("../../utils/ApiError");
 
 const handleImageUpload = async (req, res, next) => {
@@ -40,7 +41,7 @@ if(productExists) throw new ApiError(409, "Product already exists",[{ field: "ti
       image,
       title,
       description,
-      category,
+      categoryId: category,
       brand,
       price,
       salePrice,

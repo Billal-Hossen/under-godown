@@ -30,15 +30,18 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
+import { fetchCategoryItems } from "@/store/category-slice";
 
-const categoriesWithIcon = [
-  { id: "men", label: "Men", icon: ShirtIcon },
-  { id: "women", label: "Women", icon: CloudLightning },
-  { id: "kids", label: "Kids", icon: BabyIcon },
-  { id: "accessories", label: "Accessories", icon: WatchIcon },
-  { id: "footwear", label: "Footwear", icon: UmbrellaIcon },
-];
+// ✅ map backend icon names → real components
+const iconMap = {
+  ShirtIcon,
+  CloudLightning,
+  BabyIcon,
+  WatchIcon,
+  UmbrellaIcon,
+};
 
+// Brand icons (direct imports, no mapping needed)
 const brandsWithIcon = [
   { id: "nike", label: "Nike", icon: Shirt },
   { id: "adidas", label: "Adidas", icon: WashingMachine },
@@ -47,6 +50,7 @@ const brandsWithIcon = [
   { id: "zara", label: "Zara", icon: Images },
   { id: "h&m", label: "H&M", icon: Heater },
 ];
+
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { productList, productDetails } = useSelector(
@@ -57,6 +61,7 @@ function ShoppingHome() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
+  const { categoriesWithIcon } = useSelector((state) => state.category);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -65,7 +70,7 @@ function ShoppingHome() {
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");
     const currentFilter = {
-      [section]: [getCurrentItem.id],
+      [section]: [getCurrentItem._id],
     };
 
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
@@ -114,7 +119,9 @@ function ShoppingHome() {
     );
   }, [dispatch]);
 
-  console.log(productList, "productList");
+  useEffect(() => {
+    dispatch(fetchCategoryItems());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(getFeatureImages());
@@ -122,6 +129,7 @@ function ShoppingHome() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Hero Banner */}
       <div className="relative w-full h-[600px] overflow-hidden">
         {featureImageList && featureImageList.length > 0
           ? featureImageList.map((slide, index) => (
@@ -161,48 +169,62 @@ function ShoppingHome() {
           <ChevronRightIcon className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Categories */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">
             Shop by category
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {categoriesWithIcon.map((categoryItem) => (
-              <Card
-                onClick={() =>
-                  handleNavigateToListingPage(categoryItem, "category")
-                }
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-              >
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <categoryItem.icon className="w-12 h-12 mb-4 text-primary" />
-                  <span className="font-bold">{categoryItem.label}</span>
-                </CardContent>
-              </Card>
-            ))}
+            {categoriesWithIcon.map((categoryItem, index) => {
+              const IconComponent = iconMap[categoryItem.icon];
+              return (
+                <Card
+                  key={index}
+                  onClick={() =>
+                    handleNavigateToListingPage(categoryItem, "category")
+                  }
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                >
+                  <CardContent className="flex flex-col items-center justify-center p-6">
+                    {IconComponent && (
+                      <IconComponent className="w-12 h-12 mb-4 text-primary" />
+                    )}
+                    <span className="font-bold">{categoryItem.label}</span>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
 
+      {/* Brands */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">Shop by Brand</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {brandsWithIcon.map((brandItem) => (
-              <Card
-                onClick={() => handleNavigateToListingPage(brandItem, "brand")}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-              >
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <brandItem.icon className="w-12 h-12 mb-4 text-primary" />
-                  <span className="font-bold">{brandItem.label}</span>
-                </CardContent>
-              </Card>
-            ))}
+            {brandsWithIcon.map((brandItem) => {
+              const BrandIcon = brandItem.icon;
+              return (
+                <Card
+                  key={brandItem.id}
+                  onClick={() => handleNavigateToListingPage(brandItem, "brand")}
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                >
+                  <CardContent className="flex flex-col items-center justify-center p-6">
+                    <BrandIcon className="w-12 h-12 mb-4 text-primary" />
+                    <span className="font-bold">{brandItem.label}</span>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
 
+      {/* Feature Products */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">
@@ -212,6 +234,7 @@ function ShoppingHome() {
             {productList && productList.length > 0
               ? productList.map((productItem) => (
                   <ShoppingProductTile
+                    key={productItem._id}
                     handleGetProductDetails={handleGetProductDetails}
                     product={productItem}
                     handleAddtoCart={handleAddtoCart}
@@ -221,6 +244,7 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
+
       <ProductDetailsDialog
         open={openDetailsDialog}
         setOpen={setOpenDetailsDialog}
