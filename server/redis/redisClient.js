@@ -6,4 +6,12 @@ const redisClient = new Redis({
   password: process.env.REDIS_PASSWORD || null,
 });   
 
+// redisClient.on("error", (err) => console.error("Redis Client Error", err));
+
+// (async () => {
+//   await redisClient.connect();
+//   console.log("✅ Redis Connected");
+// })();
+
+
 module.exports = redisClient;
